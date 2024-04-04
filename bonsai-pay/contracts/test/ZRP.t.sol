@@ -86,6 +86,24 @@ contract ZRPTest is Test {
             "claim should have 2 ether"
         );
     }
+    // valid transfer
+    function test_Transfer() public {
+        bob_deposit(ALICE_IDENT, 1 ether, block.number);
+        carl_deposit(ALICE_IDENT, 1 ether);
+
+        // valid proof
+        Types.Proof memory proof = Types.Proof({
+            seal: "0x4141",
+            postStateDigest: bytes32(0x0),
+            journal: abi.encode(alice, ALICE_IDENT)
+        });
+
+        vm.prank(alice);
+        zrp.transfer{value:1 ether}(abi.encode(proof), bob);
+
+        assertEq(alice.balance, 1 ether, "alice should have 2 ether");
+    }
+
 
     // Valid claim
     function test_Claim() public {

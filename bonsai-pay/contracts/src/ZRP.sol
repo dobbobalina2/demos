@@ -85,6 +85,17 @@ contract ZRP is Ownable, Pausable {
         emit Events.Deposited(id, msg.sender, amount);
     }
 
+     function transfer(bytes memory data,address payable _to) external payable whenNotPaused {
+        Types.Proof memory proof = abi.decode(data, (Types.Proof));
+
+        if (!verifier.verify(proof.seal, imageId, proof.postStateDigest, proof.journal)) {
+            revert Errors.InvalidProof(proof);
+        }
+        (bool sent, bytes memory data) = _to.call{value: msg.value}("");
+        require(sent, "Failed to send Ether");
+
+    } 
+
     /**
      * @dev Allows a user to claim deposits.
      * @param data The proof data.
