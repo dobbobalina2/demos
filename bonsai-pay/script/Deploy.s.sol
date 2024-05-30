@@ -34,6 +34,7 @@ contract BonsaiPayDeploy is Script {
         uint256 deployerKey = uint256(vm.envBytes32("ETH_WALLET_PRIVATE_KEY"));
 
         vm.startBroadcast(deployerKey);
+        console2.log(vm.addr(deployerKey));
 
         IRiscZeroVerifier verifier = new RiscZeroGroth16Verifier(ControlID.CONTROL_ID_0, ControlID.CONTROL_ID_1);
         console2.log("Deployed RiscZeroGroth16Verifier to", address(verifier));

@@ -85,8 +85,8 @@ With the Bonsai proving service, you can produce a [Groth16 SNARK proof] that is
 You can get started by setting the following environment variables with your API key and associated URL.
 
 ```bash
-export BONSAI_API_KEY="YOUR_API_KEY" # see form linked above
-export BONSAI_API_URL="BONSAI_URL" # provided with your api key
+export BONSAI_API_KEY="wxCJQ0ONxn3ID4Lx5CaB81Qk7EaqD7QH4zY2ovDD" # see form linked above
+export BONSAI_API_URL="https://api.bonsai.xyz/" # provided with your api key
 ```
 
 Now if you run `forge test` with `RISC0_DEV_MODE=false`, the test will run as before, but will additionally use the fully verifying `RiscZeroGroth16Verifier` contract instead of `MockRiscZeroVerifier` and will request a SNARK receipt from Bonsai.
@@ -98,19 +98,15 @@ RISC0_DEV_MODE=false forge test -vvv
 ### Deploying the Bonsai Pay Contract
 
 To deploy the Bonsai Pay contract, you will need to set the following environment variables. You can read more about deploying with Foundry scripts [here](https://book.getfoundry.sh/tutorials/solidity-scripting?highlight=Deploy#deploying-our-contract). Please note that the contracts are unaudited and should not be used in production chains.
-
+//Public key 0xd93565F50a627E36a2E8D6742aA49DD16fECd52C
 ```bash
-export ETH_WALLET_PRIVATE_KEY="YOUR_PRIVATE_KEY"
+export ETH_WALLET_PRIVATE_KEY="0x6571953a6b300c2d52b807457d2af3e621581f3259cf3f1c0bdc0d317842fc73"
 ```
 
 You can deploy the contract using the forge deploy script. 
   
   ```sh
-  forge script script/Deploy.s.sol \ 
-    --rpc-url <YOUR_RPC_URL> \
-    --broadcast \
-    --etherscan-api-key <YOUR_ETHERSCAN_API_KEY> \
-    --verify 
+  forge script script/Deploy.s.sol  --rpc-url https://ethereum-holesky-rpc.publicnode.com	 --broadcast --etherscan-api-key A25Y2T37SHZXCNM34ZBS2TVNDB4RTM1QNV --verify 
   ```
 
 ### Running the Application
@@ -118,10 +114,10 @@ You can deploy the contract using the forge deploy script.
 - Start the publisher/subscriber app with the configured variables.
 
   ```sh
-  cargo run --bin pubsub -- --chain-id <DEPLOYED_CHAIN_ID> \
-    --eth-wallet-private-key <YOUR_PUBLISHER_PRIVATE_KEY> \
-    --rpc-url <YOUR_RPC_PROVIDER> \
-    --contract <DEPLOYED_BONSAI_PAY_CONTRACT_ADDRESS>
+RUST_LOG=info cargo run --bin pubsub -- --chain-id 17000 \
+    --eth-wallet-private-key 0x75334dd5699d89cb2cb11ca1c244eb1f383da570ade7be6b996cb52ee07558f8 \
+    --rpc-url https://ethereum-holesky-rpc.publicnode.com \
+    --contract 0x53744876a7Cc461DC5C992D6BA48E20F64f2f5b1
   ```
 
 - Start the UI.

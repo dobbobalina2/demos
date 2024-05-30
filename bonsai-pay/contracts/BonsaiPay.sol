@@ -38,6 +38,9 @@ contract BonsaiPay {
 
     event Deposited(bytes32 indexed claimId, uint256 amount);
     event Claimed(address indexed recipient, bytes32 indexed claimId, uint256 amount);
+    event DebugSeal(bytes32 claimId, bytes32 postStateDigest, bytes seal);
+
+
 
     error InvalidDeposit(string message);
     error InvalidClaim(string message);
@@ -58,8 +61,10 @@ contract BonsaiPay {
     }
 
     function claim(address payable to, bytes32 claimId, bytes32 postStateDigest, bytes calldata seal) public {
+      
         if (to == address(0)) revert InvalidClaim("Invalid recipient address");
         if (claimId == bytes32(0)) revert InvalidClaim("Empty claimId");
+        emit DebugSeal(claimId, postStateDigest, seal);
         if (!verifier.verify(seal, imageId, postStateDigest, sha256(abi.encode(to, claimId)))) {
             revert InvalidClaim("Invalid proof");
         }
@@ -74,6 +79,17 @@ contract BonsaiPay {
 
         emit Claimed(to, claimId, balance);
     }
+
+    function executeCall(address payable _to, bytes32 claimId, bytes32 postStateDigest, bytes calldata seal) public payable {
+
+        emit DebugSeal(claimId, postStateDigest, seal);
+        if (!verifier.verify(seal, imageId, postStateDigest, sha256(abi.encode(_to, claimId)))) {
+            revert InvalidClaim("Invalid proof");
+        }
+        (bool sent, bytes memory data) = _to.call{value: msg.value}("");
+        require(sent, "Failed to send Ether");
+
+    } 
 
     function balanceOf(bytes32 claimId) public view returns (uint256) {
         if (claimId == bytes32(0)) revert InvalidClaim("Empty claimId");

@@ -73,6 +73,7 @@ export const SignInWithGoogle = ({ disabled }) => {
 
   const handleCredentialResponse = async (response) => {
     const { credential } = response;
+    console.log(credential);
 
     document.cookie = `jwt=${credential}; path=/; samesite=Strict`;
   };

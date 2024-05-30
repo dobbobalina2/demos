@@ -44,12 +44,14 @@ const Prove: React.FC<ProveProps> = ({ disabled, email }) => {
       setIsLoading(false);
       return;
     }
+    console.log(jwt);
 
     try {
       const response = await fetch(`${VITE_API_HOST}/auth`, {
         method: "GET",
         headers: {
           "X-Auth-Token": jwt,
+          "X-To": "0x23D4a8d26B777c1FDcBB74afa79CAdA1caF772F8"
         },
       });
 
@@ -69,7 +71,7 @@ const Prove: React.FC<ProveProps> = ({ disabled, email }) => {
   return (
     <>
       <Account email={email} disabled={disabled} hideClaim={true} />
-      <button onClick={handleClick} disabled={isLoading || disabled || isClaimed || !isNonZeroBalance}>
+      <button onClick={handleClick} disabled={isLoading || disabled || isClaimed }>
         {isClaimed ? "Claimed" : isLoading ? "Proving..." : "Prove with Bonsai™"}
       </button>
       {isLoading ? <p>This will take a few moments...</p> : <p></p>} 

@@ -44,6 +44,7 @@ impl TxSender {
         let wallet: LocalWallet = private_key.parse::<LocalWallet>()?.with_chain_id(chain_id);
         let client = SignerMiddleware::new(provider.clone(), wallet.clone());
         let contract = contract.parse::<Address>()?;
+        log::info!("tx Address: {:?}",client.address());
 
         Ok(TxSender {
             chain_id,
@@ -58,7 +59,7 @@ impl TxSender {
             .chain_id(self.chain_id)
             .to(self.contract)
             .from(self.client.address())
-            .data(calldata);
+            .data(calldata).gas(U256::from(2_000_000)).value(U256::from(1_000));
 
         log::info!("Transaction request: {:?}", &tx);
 
@@ -68,6 +69,8 @@ impl TxSender {
 
         Ok(tx)
     }
+
+    
 }
 
 /// An implementation of a Prover that runs on Bonsai.
@@ -77,7 +80,6 @@ impl BonsaiProver {
     /// `Vec<u8>) for the given elf and input.
     pub fn prove(elf: &[u8], input: &[u8]) -> Result<(Vec<u8>, FixedBytes<32>, Vec<u8>)> {
         let client = bonsai_sdk::Client::from_env(risc0_zkvm::VERSION)?;
-
         // Compute the image_id, then upload the ELF with the image_id as its key.
         let image_id = compute_image_id(elf)?;
         let image_id_hex = image_id.to_string();
