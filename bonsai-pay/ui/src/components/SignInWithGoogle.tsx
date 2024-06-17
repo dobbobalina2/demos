@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useContext, useEffect } from "react";
+import { AaContext } from "../AaContext";
+import { GoogleTokenPayload } from "../libs/types";
 
 declare global {
   interface Window {
@@ -10,7 +11,7 @@ declare global {
 
 export const SignInWithGoogle = ({ disabled }) => {
   const { VITE_GOOGLE_CLIENT_ID } = import.meta.env;
-  const { address } = useAccount();
+  const { debounceDest } = useContext(AaContext); 
 
   useEffect(() => {
     // Ensure that the initGsi function is idempotent
@@ -26,7 +27,7 @@ export const SignInWithGoogle = ({ disabled }) => {
         window.google.accounts.id.initialize({
           client_id: VITE_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
-          nonce: address,
+          nonce: debounceDest,
           scope: "email",
           auto_select: false,
           state: "hello",
@@ -69,12 +70,10 @@ export const SignInWithGoogle = ({ disabled }) => {
       }
       initGsi();
     };
-  }, [VITE_GOOGLE_CLIENT_ID, address]);
+  }, [VITE_GOOGLE_CLIENT_ID, debounceDest]);
 
   const handleCredentialResponse = async (response) => {
-    const { credential } = response;
-    console.log(credential);
-
+    const { credential} = response;
     document.cookie = `jwt=${credential}; path=/; samesite=Strict`;
   };
 

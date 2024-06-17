@@ -1,45 +1,40 @@
-import React, { useEffect } from "react";
+import React, { useContext } from "react";
 import { formatUnits } from "viem";
 import { Token } from "../libs/types";
-import { useBonsaiPayBalanceOf } from "../generated";
+import { useBalance } from 'wagmi'
+import { AaContext } from "../AaContext";
 
 interface BalanceProps {
-  identity: `0x${string}`;
   token: Token;
   disabled: boolean;
   hideClaim?: boolean;
 }
 
 export const Balance: React.FC<BalanceProps> = ({
-  identity,
   token,
   disabled,
   hideClaim,
 }) => {
 
-  const { data: balance, refetch: refetchBalance
-   } = useBonsaiPayBalanceOf({
-    args: [identity],
+  const { address } = useContext(AaContext); 
+
+  const { data:balance } = useBalance({
+    address: address,
+    watch:true,
   });
 
   // refresh balance every 5 seconds
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      refetchBalance?.();
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  });
-
+ 
   return (
     <>
     <div>
+      <h5>Wallet: <br/> {address}</h5>
       <p>Availiable Balance:</p>
     </div>
       <div className="balance">
         <img src={token.icon} alt={token.name} />
         <p>
-          {` ${formatUnits(balance || 0n, token.decimals)} ${token.name}
+          {` ${formatUnits(balance?.value || 0n, token.decimals)} ${token.name}
         `}
         </p>
       </div>

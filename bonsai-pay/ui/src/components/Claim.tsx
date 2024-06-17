@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Prove from "./Prove";
+import Prove from "./Send";
 import { useAccount } from "wagmi";
 import { GoogleTokenPayload } from "../libs/types";
 import { SignInWithGoogle } from "./SignInWithGoogle";
@@ -40,9 +40,9 @@ const Claim: React.FC<ClaimProps> = () => {
   }, []);
 
   const stepDescriptions = [
-    "Connect Wallet",
     "Sign In",
-    "Prove & Claim",
+    "Create",
+    "Created",
   ];
 
   const renderStepIndicator = () => {
@@ -61,11 +61,11 @@ const Claim: React.FC<ClaimProps> = () => {
   };
 
   useEffect(() => {
-    if (!isConnected) {
+    if (isConnected) {
       setCurrentStep(1);
-    } else if (isConnected && !jwtExists) {
+    } else if (!isConnected && !jwtExists) {
       setCurrentStep(2);
-    } else if (isConnected && jwtExists) {
+    } else if (!isConnected && jwtExists) {
       setCurrentStep(3);
     } 
   }, [isConnected, jwtExists]);

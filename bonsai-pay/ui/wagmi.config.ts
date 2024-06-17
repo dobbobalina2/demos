@@ -31,6 +31,7 @@ export default defineConfig({
             [sepolia.id]: process.env.VITE_CUSTODY_ADDRESS as `0x${string}`,
           },
         },
+      
       ],
     }),
     react(),

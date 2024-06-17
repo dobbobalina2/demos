@@ -48,6 +48,9 @@ contract AADemo {
     }
     
     receive() external payable {}
+    
+    fallback() external payable {}
+
 
      /**
      * execute a transaction (called directly from owner, or by entryPoint)

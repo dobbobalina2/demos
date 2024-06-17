@@ -92,7 +92,7 @@ export BONSAI_API_URL="https://api.bonsai.xyz/" # provided with your api key
 Now if you run `forge test` with `RISC0_DEV_MODE=false`, the test will run as before, but will additionally use the fully verifying `RiscZeroGroth16Verifier` contract instead of `MockRiscZeroVerifier` and will request a SNARK receipt from Bonsai.
 
 ```sh
-RISC0_DEV_MODE=false forge test -vvv
+RISC0_DEV_MODE=false forge test -vvv --match-path tests/AaFork.t.sol --fork-url https://ethereum-holesky-rpc.publicnode.com 
 ```
 
 ### Deploying the Bonsai Pay Contract
@@ -106,7 +106,7 @@ export ETH_WALLET_PRIVATE_KEY="0x6571953a6b300c2d52b807457d2af3e621581f3259cf3f1
 You can deploy the contract using the forge deploy script. 
   
   ```sh
-  forge script script/Deploy.s.sol  --rpc-url https://ethereum-holesky-rpc.publicnode.com	 --broadcast --etherscan-api-key A25Y2T37SHZXCNM34ZBS2TVNDB4RTM1QNV --verify 
+  forge script script/Deploy.s.sol  --rpc-url https://eth-holesky.g.alchemy.com/v2/tS791umNStZEi7JR5hBHzoGr8SowKlpX	 --broadcast --etherscan-api-key A25Y2T37SHZXCNM34ZBS2TVNDB4RTM1QNV --verify 
   ```
 
 ### Running the Application
@@ -116,7 +116,7 @@ You can deploy the contract using the forge deploy script.
   ```sh
 RUST_LOG=info cargo run --bin pubsub -- --chain-id 17000 \
     --eth-wallet-private-key 0x75334dd5699d89cb2cb11ca1c244eb1f383da570ade7be6b996cb52ee07558f8 \
-    --rpc-url https://ethereum-holesky-rpc.publicnode.com \
+    --rpc-url https://eth-holesky.g.alchemy.com/v2/tS791umNStZEi7JR5hBHzoGr8SowKlpX \
     --contract 0x53744876a7Cc461DC5C992D6BA48E20F64f2f5b1
   ```
 

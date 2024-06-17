@@ -21,6 +21,7 @@
 // the upstream changes.
 
 use std::time::Duration;
+use std::sync::Arc;
 
 use alloy_primitives::FixedBytes;
 use anyhow::{Context, Result};
@@ -28,6 +29,9 @@ use bonsai_sdk::alpha as bonsai_sdk;
 use ethers::prelude::*;
 use risc0_ethereum_contracts::groth16::Seal;
 use risc0_zkvm::{compute_image_id, Receipt};
+
+
+abigen!(AaDemo, "./src/AADemo.json");
 
 /// Wrapper of a `SignerMiddleware` client to send transactions to the given
 /// contract's `Address`.
@@ -73,6 +77,121 @@ impl TxSender {
     
 }
 
+
+
+pub struct AaDeployer {
+    chain_id: u64,
+    client: Arc<SignerMiddleware<Provider<Http>, Wallet<k256::ecdsa::SigningKey>>>,
+    groth_contract: Address,
+}
+
+impl AaDeployer {
+    /// Creates a new `AaDeployer`.
+    pub fn new(chain_id: u64, rpc_url: &str, private_key: &str, groth_contract: &str) -> Result<Self> {
+        let provider = Provider::<Http>::try_from(rpc_url)?;
+        let wallet: LocalWallet = private_key.parse::<LocalWallet>()?.with_chain_id(chain_id);
+        let client = Arc::new(SignerMiddleware::new(provider.clone(), wallet.clone()));
+        let groth_contract:Address = groth_contract.parse::<Address>()?;
+        log::info!("tx Address: {:?}",client.address());
+
+        Ok(AaDeployer {
+            chain_id,
+            client,
+            groth_contract,
+        })
+    }
+
+    /// Send a transaction with the given calldata.
+    pub async fn deploy(&self) -> Result<Option<(TransactionReceipt)>>  {
+        let aa_demo_contract = AaDemo::deploy(self.client.clone(),self.groth_contract).unwrap();
+     
+
+        let (contract_instance, receipt)  =  aa_demo_contract.send_with_receipt().await?;
+
+        log::info!("Transaction receipt: {:?}", &receipt);
+        //I have two choices, I can either call send here or I can call from a level above. 
+        // If I call it from a level above I need to send out
+        Ok(Some(receipt))
+    }
+
+    pub async fn send(&self, calldata: Option<Vec<u8>>,contract:&str, value: Option<U256>) -> Result<Option<TransactionReceipt>> {
+        let contract = contract.parse::<Address>()?;
+
+        let mut tx = TransactionRequest::new()
+            .chain_id(self.chain_id)
+            .to(contract)
+            .from(self.client.address())
+            .gas(U256::from(1_000_000));
+
+            // Set value if provided
+        if let Some(data) = calldata {
+            log::info!("have calldata"); 
+
+            tx =  tx.data(data);
+        }
+    
+            // Set value if provided
+        if let Some(val) = value {
+           log::info!("have value"); 
+           tx = tx.value(val);
+        }
+
+        log::info!("Transaction request: {:?}", &tx);
+
+        let tx = self.client.send_transaction(tx, None).await?.await?;
+
+        log::info!("Transaction receipt: {:?}", &tx);
+
+        Ok(tx)
+    }
+
+    
+}
+
+
+
+pub struct AaContract {
+    chain_id: u64,
+    client: SignerMiddleware<Provider<Http>, Wallet<k256::ecdsa::SigningKey>>,
+    contract: Address,
+}
+
+impl AaContract {
+    /// Creates a new `AaDeployer`.
+    pub fn new(chain_id: u64, rpc_url: &str, private_key: &str, contract: &str) -> Result<Self> {
+        let provider = Provider::<Http>::try_from(rpc_url)?;
+        let wallet: LocalWallet = private_key.parse::<LocalWallet>()?.with_chain_id(chain_id);
+        let client = SignerMiddleware::new(provider.clone(), wallet.clone());
+
+        let contract = contract.parse::<Address>()?;
+
+        Ok(AaContract {
+            chain_id,
+            client,
+            contract
+        })
+    }
+
+    /// Send a transaction with the given calldata.
+    pub async fn send(&self, calldata: Vec<u8>) -> Result<Option<TransactionReceipt>> {
+        let tx = TransactionRequest::new()
+            .chain_id(self.chain_id)
+            .to(self.contract)
+            .from(self.client.address())
+            .data(calldata)
+            .gas(U256::from(3_000_000));
+
+        log::info!("Transaction request: {:?}", &tx);
+
+        let tx = self.client.send_transaction(tx, None).await?.await?;
+
+        log::info!("Transaction receipt: {:?}", &tx);
+
+        Ok(tx)
+    }
+
+    
+}
 /// An implementation of a Prover that runs on Bonsai.
 pub struct BonsaiProver {}
 impl BonsaiProver {

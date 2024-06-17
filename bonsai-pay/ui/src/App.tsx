@@ -1,102 +1,55 @@
 import { WagmiConfig, createConfig } from "wagmi";
 import {
-  ConnectKitProvider,
-  ConnectKitButton,
+ 
   getDefaultConfig,
 } from "connectkit";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { ToastContainer } from "react-toastify";
-import Claim from "./components/Claim";
 import Deposit from "./components/Deposit";
 import { holesky } from "wagmi/chains";
 import Modal from "./components/Modal";
 import "react-toastify/dist/ReactToastify.css";
-import { clearCookies } from "./libs/utils";
-
+import {  AaProvider } from "./AaContext";
 const { VITE_ALCHEMY_ID, VITE_WALLET_CONNECT_ID } = import.meta.env;
 
 const config = createConfig(
   getDefaultConfig({
     alchemyId: VITE_ALCHEMY_ID,
     walletConnectProjectId: VITE_WALLET_CONNECT_ID,
-    appName: "Bonsai Pay",
+    appName: "Compete Demo",
     chains: [holesky],
   })
 );
 
 function App() {
-  useEffect(() => {
-    clearCookies();
-  });
+
 
   return (
-    <WagmiConfig config={config}>
-      <ConnectKitProvider>
-        <ToastContainer />
-        <div className="app-container">
-          <h2 className="title">Bonsai Pay Demo</h2>
-          <p className="subtitle">powered by Bonsai™</p>
-          <ConnectKitButton mode="light" />
-          <ViewSelection />
-          <p className="read-the-docs">This is for demo purposes only.</p>
-          <p className="read-the-docs">
-            Please read our{" "}
-            <a
-              href="https://github.com/risc0/demos/blob/main/bonsai-pay/README.md"
-              target="_blank"
-              rel="noreferrer"
-            >
-              docs
-            </a>{" "}
-            for more information.
-          </p>
 
+    <WagmiConfig config={config}>
+          <AaProvider >
+
+        <ToastContainer />
+        
+        <div className="app-container">
+          <h2 className="title">Super Secret Project Demo</h2>
+           <div className="card">
+           <Deposit /> 
+          </div>
+          <p className="read-the-docs">This is for demo purposes only.</p>
+        
         
         </div>
         <Footer />
+
         <ToastContainer />
-      </ConnectKitProvider>
+      </AaProvider>
     </WagmiConfig>
+
   );
 }
 
-function ViewSelection() {
-  const [showComponent, setShowComponent] = useState<"deposit" | "claim">(
-    "claim"
-  );
-  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setShowComponent(e.target.value as "deposit" | "claim");
-  };
-  return (
-    <div>
-      <div className="radio-container">
-        <label>
-          <input
-            className="radio-input"
-            type="radio"
-            value="deposit"
-            checked={showComponent === "deposit"}
-            onChange={handleRadioChange}
-          />
-          Send
-        </label>
-        <label>
-          <input
-            className="radio-input"
-            type="radio"
-            value="claim"
-            checked={showComponent === "claim"}
-            onChange={handleRadioChange}
-          />
-          Claim
-        </label>
-      </div>
-      <div className="card">
-        {showComponent === "deposit" ? <Deposit /> : <Claim />}
-      </div>
-    </div>
-  );
-}
+
 
 export default App;
 

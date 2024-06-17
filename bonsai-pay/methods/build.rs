@@ -14,7 +14,7 @@
 
 use std::{collections::HashMap, env};
 
-use risc0_build::{embed_methods_with_options, DockerOptions, GuestOptions};
+use risc0_build::{embed_methods_with_options, DockerOptions, GuestOptions, GuestListEntry};
 use risc0_build_ethereum::generate_solidity_files;
 
 // Paths where the generated Solidity files will be written.
@@ -29,7 +29,7 @@ fn main() {
     });
 
     // Generate Rust source files for the methods crate.
-    let guests = embed_methods_with_options(HashMap::from([(
+    let guests:Vec<GuestListEntry> = embed_methods_with_options(HashMap::from([(
         "guests",
         GuestOptions {
             features: Vec::new(),
